@@ -1,0 +1,8 @@
+/warte
+/bin/
+/lib/
+/third_party/
+*.test
+.DS_Store
+/warte.exe
+/.claude/

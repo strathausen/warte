@@ -1,0 +1,109 @@
+# warte configuration
+#
+# Location: $WARTE_CONFIG, else $XDG_CONFIG_HOME/warte/config.toml, else
+# ~/.config/warte/config.toml (on macOS ~/Library/Application Support/warte
+# unless ~/.config/warte exists).
+#
+# Every value below is the built-in default; delete or comment out anything
+# you do not want to change. Unknown keys and invalid values are reported as
+# warnings at startup and replaced by their defaults.
+
+# Theme name (e.g. "catppuccin-mocha"), or "auto" to follow the terminal's
+# light/dark background. Overridden by $WARTE_THEME.
+theme = "auto"
+
+# Message layout: "bubbles" or "irc" (dense "12:41 <alice> hi" lines).
+layout = "bubbles"
+
+# Mouse support: click to focus, wheel to scroll. Hold Shift (Option in
+# iTerm2) while dragging to select text with the terminal instead.
+mouse = true
+
+# Key used for <leader> in key maps. " " is the space bar.
+leader = " "
+
+# Inline image protocol: auto | kitty | iterm2 | sixel | blocks | off.
+# Overridden by $WARTE_IMAGES.
+images = "auto"
+
+# Maximum height of inline images in terminal rows (1..100).
+image_max_rows = 12
+
+# Notification privacy: name_and_message | name | none | off.
+# "none" shows a notice without sender or content.
+notifications = "name_and_message"
+
+# Notification delivery: auto | osc | native | bell | off.
+# auto tries terminal OSC notifications, then the OS, then the bell.
+notify_method = "auto"
+
+# External editor for long messages. Defaults to $VISUAL, then $EDITOR,
+# then vi.
+# editor = "nvim"
+
+# Disable animations (spring scrolling, animated spinners).
+reduce_motion = false
+
+# Nerd Font icons: "auto" (detect), true or false.
+nerd_fonts = "auto"
+
+# Clock format: "24h" or "12h".
+time_format = "24h"
+
+# Show avatars (images where supported, colored initials otherwise).
+show_avatars = true
+
+# Pane widths in columns (16..200).
+sidebar_width = 36
+chat_list_width = 32
+
+# true: Enter sends, Alt-Enter inserts a newline.
+# false: Enter inserts a newline, Alt-Enter sends (Ctrl-Enter also sends on
+# terminals that support the kitty keyboard protocol).
+send_on_enter = true
+
+# Disable colors. Also enabled by setting the NO_COLOR environment variable.
+no_color = false
+
+# Name of this linked device as shown on your phone (max 50 characters).
+device_name = "warte"
+
+# Log verbosity: debug | info | warn | error.
+log_level = "info"
+
+# Allow message bodies and phone numbers in logs (also --log-sensitive).
+log_sensitive = false
+
+# Commands used to open attachments and links externally. Kinds without an
+# entry use "default", which is "open" on macOS and "xdg-open" elsewhere.
+# [open_with]
+# default = "open"
+# video = "mpv"
+# audio = "mpv --no-video"
+# image = "open"
+# file = "open"
+# url = "open"
+
+# Idle screen lock. ":lock" always works; this adds an idle timeout.
+[screen_lock]
+enabled = false
+idle_minutes = 10   # 1..1440
+
+# Key map overrides per mode: normal, insert, visual, command, search.
+# Map a key sequence to an action name, an ":ex command", or "" / "none" to
+# remove the default binding.
+# [keys.normal]
+# "<leader>m" = "chat.mute"
+# "<C-x>" = ":mute 8h"
+# "q" = "none"
+
+# Chat folders, cycled with gt / gT. Repeat [[folders]] for more.
+# [[folders]]
+# name = "Groups"
+# include_direct = false
+# include_groups = true
+# chats = []          # chat IDs always included
+# exclude_chats = []  # chat IDs never included
+# unread_only = false
+# hide_muted = false
+# show_archived = false
