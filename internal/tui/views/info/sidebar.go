@@ -663,11 +663,20 @@ func (s *Sidebar) header(w int) []string {
 	}
 	lines := []string{""}
 	shown := false
-	if img := s.ctx.Images; c.AvatarID != "" && img != nil && img.Inline() {
+	if img := s.ctx.Images; (c.AvatarID != "" || !st.Theme.Mono) && img != nil && img.Inline() {
 		ref := ui.ImageRef{Kind: ui.ImageAvatar, AvatarID: c.AvatarID, Attachment: core.Attachment{Width: 1, Height: 1}, Label: theme.Initials(title)}
+		if c.AvatarID == "" {
+			ref = ui.InitialsRef(theme.Initials(title), p.AvatarColor(c.Color, id), p.Bg)
+		}
 		cols, rows := img.Size(ref, min(12, w-2), 6)
 		if cols > 0 && rows > 0 {
-			rs, _ := img.Rows(ref, cols, rows)
+			rs, ok := img.Rows(ref, cols, rows)
+			if !ok && c.AvatarID != "" && !st.Theme.Mono {
+				// The photo is loading or failed: show the initials meanwhile.
+				if ri, ok := img.Rows(ui.InitialsRef(theme.Initials(title), p.AvatarColor(c.Color, id), p.Bg), cols, rows); ok {
+					rs = ri
+				}
+			}
 			for _, r := range rs {
 				lines = append(lines, center(r, w))
 			}

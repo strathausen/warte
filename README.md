@@ -158,6 +158,7 @@ key is the space bar. Press `?` in warte for the keys of the current view.
 | `Ctrl-a` / `Ctrl-v` | Attach a file / paste text or an image (images are read from the system clipboard; in Ghostty use `Ctrl-v`, since `Cmd-v` only pastes text) |
 | `Ctrl-g` / `Ctrl-s` | Emoji picker / sticker picker |
 | `Tab` | Complete `@mentions` and `:emoji:` |
+| `:)` `<3` `(y)` … then space | Becomes 🙂 ❤️ 👍 (add your own under `[emoticons]` in the config; `convert_emoticons = false` turns it off) |
 | `Ctrl-r` | Cancel the reply |
 
 **Everywhere else**

@@ -234,6 +234,14 @@ func (m *imageManager) loadCmd(ref ui.ImageRef, key string, sk sizeKey, have *te
 		defer func() { <-sem }()
 		msg := imageLoadedMsg{key: key, size: sk, gen: gen}
 		dec := have
+		if dec == nil && ref.Kind == ui.ImageInitials {
+			img, err := initialsImage(ref.Label, ref.Colors[0], ref.Colors[1])
+			if err != nil {
+				msg.err = err
+				return msg
+			}
+			dec = &termimg.Decoded{Format: "png", Frames: []termimg.Frame{{Image: termimg.Squircle(img)}}}
+		}
 		if dec == nil {
 			ctx, cancel := context.WithTimeout(appCtx, 60*time.Second)
 			defer cancel()
@@ -255,6 +263,11 @@ func (m *imageManager) loadCmd(ref ui.ImageRef, key string, sk sizeKey, have *te
 			if err != nil {
 				msg.err = err
 				return msg
+			}
+			if ref.Kind == ui.ImageAvatar {
+				for i := range dec.Frames {
+					dec.Frames[i].Image = termimg.Squircle(dec.Frames[i].Image)
+				}
 			}
 		}
 		msg.decoded = dec

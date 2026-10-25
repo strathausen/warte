@@ -12,6 +12,8 @@
 package ui
 
 import (
+	"fmt"
+	"image/color"
 	"time"
 
 	tea "charm.land/bubbletea/v2"
@@ -209,6 +211,7 @@ const (
 	ImageAttachment ImageKind = iota // Service.Attachment(Message, Attachment.ID)
 	ImageAvatar                      // Service.Avatar(AvatarID)
 	ImageSticker                     // Service.StickerImage(PackID, StickerID)
+	ImageInitials                    // generated: Label on Colors[0], ink Colors[1]
 )
 
 // ImageRef identifies an image for Images.
@@ -220,8 +223,29 @@ type ImageRef struct {
 	PackID     string
 	StickerID  uint32
 	// Label is shown in the placeholder box when there is no blurhash
-	// (e.g. "Photo"). Optional.
+	// (e.g. "Photo"). Optional. For ImageInitials it is the initials.
 	Label string
+	// Colors are the background and ink of an ImageInitials avatar.
+	Colors [2]color.RGBA
+}
+
+// InitialsRef returns the ref of a generated avatar showing initials in ink
+// on bg, drawn like a profile photo (squircle with padding).
+func InitialsRef(initials string, bg, ink color.Color) ImageRef {
+	return ImageRef{
+		Kind:       ImageInitials,
+		Label:      initials,
+		Colors:     [2]color.RGBA{rgba(bg), rgba(ink)},
+		Attachment: core.Attachment{Width: 1, Height: 1},
+	}
+}
+
+func rgba(c color.Color) color.RGBA {
+	if c == nil {
+		return color.RGBA{A: 255}
+	}
+	r, g, b, _ := c.RGBA()
+	return color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), 255}
 }
 
 // Key returns a stable cache key for the image source (without size).
@@ -231,6 +255,8 @@ func (r ImageRef) Key() string {
 		return "av:" + r.AvatarID
 	case ImageSticker:
 		return "st:" + r.PackID + ":" + itoa(int(r.StickerID))
+	case ImageInitials:
+		return fmt.Sprintf("in:%x:%x:%s", r.Colors[0], r.Colors[1], r.Label)
 	default:
 		return "at:" + r.Message.String() + ":" + r.Attachment.ID
 	}

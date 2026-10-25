@@ -402,13 +402,23 @@ func (a *App) renderSidebar(r rect) []string {
 		tile = lipgloss.NewStyle().Reverse(true).Bold(true)
 	}
 	shown := false
-	if c.AvatarID != "" && a.images.avatarsAsImages() {
-		rows, ok := a.images.Rows(ui.ImageRef{Kind: ui.ImageAvatar, AvatarID: c.AvatarID, Attachment: core.Attachment{Width: 1, Height: 1}}, 10, 5)
-		if ok {
-			for _, row := range rows {
-				lines = append(lines, centerText(row, iw))
+	if a.images.avatarsAsImages() {
+		// The photo, or while it loads (or if it fails) the initials.
+		var refs []ui.ImageRef
+		if c.AvatarID != "" {
+			refs = append(refs, ui.ImageRef{Kind: ui.ImageAvatar, AvatarID: c.AvatarID, Attachment: core.Attachment{Width: 1, Height: 1}})
+		}
+		if !st.Theme.Mono {
+			refs = append(refs, ui.InitialsRef(theme.Initials(title), col, tile.GetForeground()))
+		}
+		for _, ref := range refs {
+			if rows, ok := a.images.Rows(ref, 10, 5); ok {
+				for _, row := range rows {
+					lines = append(lines, centerText(row, iw))
+				}
+				shown = true
+				break
 			}
-			shown = true
 		}
 	}
 	if !shown {

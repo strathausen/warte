@@ -195,6 +195,16 @@ type Config struct {
 	// keyboard protocol, so Alt-Enter is the portable choice. Default true.
 	SendOnEnter bool `toml:"send_on_enter"`
 
+	// ConvertEmoticons turns emoticons typed as a word of their own (":)",
+	// "<3", …) into emoji when followed by a space or newline, or when sent.
+	// Default true.
+	ConvertEmoticons bool `toml:"convert_emoticons"`
+
+	// Emoticons adds emoticon → replacement pairs to the built-in ones, or
+	// overrides them; an empty replacement turns a built-in one off.
+	// Default empty.
+	Emoticons map[string]string `toml:"emoticons"`
+
 	// NoColor disables all colors. Default false; forced to true when the
 	// NO_COLOR environment variable is set to a non-empty value.
 	NoColor bool `toml:"no_color"`
@@ -238,30 +248,32 @@ type ScreenLock struct {
 // the environment ($VISUAL, $EDITOR) and the operating system.
 func Default() Config {
 	return Config{
-		Theme:         "auto",
-		Layout:        LayoutBubbles,
-		Mouse:         true,
-		Leader:        " ",
-		Images:        ImagesAuto,
-		ImageMaxRows:  12,
-		Notifications: NotifyNameAndMessage,
-		NotifyMethod:  MethodAuto,
-		Editor:        defaultEditor(),
-		OpenWith:      map[string]string{OpenDefault: defaultOpener()},
-		ReduceMotion:  false,
-		NerdFonts:     NerdFontsAuto,
-		TimeFormat:    Time24h,
-		ShowAvatars:   true,
-		SidebarWidth:  36,
-		ChatListWidth: 32,
-		SendOnEnter:   true,
-		NoColor:       false,
-		ScreenLock:    ScreenLock{Enabled: false, IdleMinutes: 10},
-		Keys:          map[string]map[string]string{},
-		Folders:       nil,
-		DeviceName:    "warte",
-		LogLevel:      LogInfo,
-		LogSensitive:  false,
+		Theme:            "auto",
+		Layout:           LayoutBubbles,
+		Mouse:            true,
+		Leader:           " ",
+		Images:           ImagesAuto,
+		ImageMaxRows:     12,
+		Notifications:    NotifyNameAndMessage,
+		NotifyMethod:     MethodAuto,
+		Editor:           defaultEditor(),
+		OpenWith:         map[string]string{OpenDefault: defaultOpener()},
+		ReduceMotion:     false,
+		NerdFonts:        NerdFontsAuto,
+		TimeFormat:       Time24h,
+		ShowAvatars:      true,
+		SidebarWidth:     36,
+		ChatListWidth:    32,
+		SendOnEnter:      true,
+		ConvertEmoticons: true,
+		Emoticons:        map[string]string{},
+		NoColor:          false,
+		ScreenLock:       ScreenLock{Enabled: false, IdleMinutes: 10},
+		Keys:             map[string]map[string]string{},
+		Folders:          nil,
+		DeviceName:       "warte",
+		LogLevel:         LogInfo,
+		LogSensitive:     false,
 	}
 }
 

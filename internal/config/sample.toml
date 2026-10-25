@@ -62,6 +62,10 @@ chat_list_width = 32
 # terminals that support the kitty keyboard protocol).
 send_on_enter = true
 
+# Turn emoticons typed as a word of their own (":)", ":D", "<3", "(y)", …)
+# into emoji after a space or newline, or when the message is sent.
+convert_emoticons = true
+
 # Disable colors. Also enabled by setting the NO_COLOR environment variable.
 no_color = false
 
@@ -83,6 +87,13 @@ log_sensitive = false
 # image = "open"
 # file = "open"
 # url = "open"
+
+# Your own emoticons, added to the built-in ones. An empty value turns a
+# built-in one off.
+# [emoticons]
+# "/shrug" = "¯\\_(ツ)_/¯"
+# "<3" = "💜"
+# "D:" = ""
 
 # Idle screen lock. ":lock" always works; this adds an idle timeout.
 [screen_lock]

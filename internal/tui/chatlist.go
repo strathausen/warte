@@ -629,12 +629,6 @@ func (a *App) renderChatItem(c *core.Chat, w int, selected, focused bool) []stri
 // image when the terminal draws real images in cells.
 func (a *App) avatarTile(c *core.Chat, selected bool) (string, string) {
 	st := a.styles
-	if a.cfg.ShowAvatars && c.AvatarID != "" && a.images.avatarsAsImages() {
-		rows, ok := a.images.Rows(ui.ImageRef{Kind: ui.ImageAvatar, AvatarID: c.AvatarID}, 4, 2)
-		if ok && len(rows) == 2 {
-			return rows[0], rows[1]
-		}
-	}
 	name := c.Title
 	id := string(c.ID)
 	if c.Kind == core.ChatNoteToSelf {
@@ -644,6 +638,21 @@ func (a *App) avatarTile(c *core.Chat, selected bool) (string, string) {
 		id = string(c.Contact.ACI)
 	}
 	av := st.Avatar(c.Color, id)
+	if a.images.avatarsAsImages() {
+		// The photo, or while it loads (or if it fails) the initials.
+		var refs []ui.ImageRef
+		if a.cfg.ShowAvatars && c.AvatarID != "" {
+			refs = append(refs, ui.ImageRef{Kind: ui.ImageAvatar, AvatarID: c.AvatarID})
+		}
+		if !st.Theme.Mono {
+			refs = append(refs, ui.InitialsRef(theme.Initials(clean(name)), av.GetBackground(), av.GetForeground()))
+		}
+		for _, ref := range refs {
+			if rows, ok := a.images.Rows(ref, 4, 2); ok && len(rows) == 2 {
+				return rows[0], rows[1]
+			}
+		}
+	}
 	top := av.Render(theme.Initials(clean(name)))
 	var bottom string
 	if st.Theme.Mono {

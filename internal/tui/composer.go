@@ -215,6 +215,9 @@ func (c *composer) stopTyping(a *App) tea.Cmd {
 // composerKey forwards an unmatched key press to the textarea.
 func (a *App) composerKey(msg tea.KeyPressMsg) tea.Cmd {
 	c := a.comp
+	if msg.Text == " " {
+		c.convertEmoticon(a)
+	}
 	before := c.ta.Value()
 	var cmd tea.Cmd
 	c.ta, cmd = c.ta.Update(msg)
@@ -227,6 +230,9 @@ func (a *App) composerKey(msg tea.KeyPressMsg) tea.Cmd {
 }
 
 func (c *composer) insert(a *App, s string) tea.Cmd {
+	if s == "\n" {
+		c.convertEmoticon(a)
+	}
 	c.ta.InsertString(s)
 	c.afterEdit(a)
 	return c.noteTyping(a)
@@ -244,6 +250,34 @@ func (c *composer) afterEdit(a *App) {
 	}
 	c.mentions = kept
 	c.updateCompletion(a)
+}
+
+// emoticons returns the emoticon table (built-in plus the user's own), or
+// nil when conversion is off.
+func (a *App) emoticons() map[string]string {
+	if !a.cfg.ConvertEmoticons {
+		return nil
+	}
+	if len(a.cfg.Emoticons) == 0 {
+		return format.Emoticons
+	}
+	t := make(map[string]string, len(format.Emoticons)+len(a.cfg.Emoticons))
+	for k, v := range format.Emoticons {
+		t[k] = v
+	}
+	for k, v := range a.cfg.Emoticons {
+		t[k] = v
+	}
+	return t
+}
+
+// convertEmoticon replaces an emoticon right before the cursor with its
+// emoji.
+func (c *composer) convertEmoticon(a *App) {
+	v, off := c.ta.Value(), c.cursorOffset()
+	if start, emoji, ok := format.EmoticonBefore(v[:off], a.emoticons()); ok {
+		c.setValueCursor(v[:start]+emoji+v[off:], start+len(emoji))
+	}
 }
 
 // cursorOffset returns the byte offset of the cursor in the value.
@@ -355,6 +389,10 @@ func (a *App) send() tea.Cmd {
 	}
 	if a.conv.chat.OnlyAdminsSend && !a.conv.chat.SelfIsAdmin {
 		return a.toast(ui.ToastWarning, "Only admins can send messages here")
+	}
+	raw = strings.TrimRight(raw, " \n\t")
+	if start, emoji, ok := format.EmoticonBefore(raw, a.emoticons()); ok {
+		raw = raw[:start] + emoji
 	}
 	text := strings.TrimRight(format.ReplaceShortcodes(raw), " \n\t")
 	text = strings.TrimLeft(text, "\n")
