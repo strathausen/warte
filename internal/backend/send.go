@@ -517,19 +517,20 @@ func (b *Backend) React(ctx context.Context, id core.MessageID, emoji string, re
 	if err != nil {
 		return err
 	}
-	if _, err := b.sendDataMessage(ctx, cli, id.Chat, dm); err != nil {
-		return err
-	}
-	r := core.Reaction{Emoji: emoji, From: self, At: b.now().UTC()}
+	r := core.Reaction{Emoji: emoji, From: self, At: msTime(dm.GetTimestamp())}
 	if remove {
 		r.Emoji = ""
 	}
-	updated, err := b.db.SetReaction(ctx, id, r)
-	if err != nil {
+	return b.reactLocally(ctx, id, r, func(previous core.Reaction) error {
+		if remove {
+			if previous.Emoji == "" {
+				return nil
+			}
+			dm.Reaction.Emoji = proto.String(previous.Emoji)
+		}
+		_, err := b.sendDataMessage(ctx, cli, id.Chat, dm)
 		return err
-	}
-	b.emit(core.MessageUpdated{Message: updated})
-	return nil
+	})
 }
 
 // Forward re-sends a message's content to other chats.

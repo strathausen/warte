@@ -111,6 +111,9 @@ type Backend struct {
 
 	sendMu   sync.Mutex
 	sendLock map[core.ChatID]*sync.Mutex // keeps per-chat send order
+
+	reactionMu sync.Mutex
+	reactions  map[core.MessageID]*reactionChange
 }
 
 type typingKey struct {

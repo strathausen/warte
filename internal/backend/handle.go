@@ -553,7 +553,25 @@ func (b *Backend) onReaction(ctx context.Context, cc convCtx, info events.Messag
 		zerolog.Ctx(ctx).Debug().Msg("Reaction to unknown message")
 		return nil
 	}
+	b.reactionMu.Lock()
+	defer b.reactionMu.Unlock()
 	r := core.Reaction{Emoji: rt.Emoji, From: cc.Sender, At: msTime(dm.GetTimestamp())}
+	if cc.Sender == cc.Self {
+		for pending := b.reactions[target]; pending != nil; pending = pending.parent {
+			if pending.current.At.Equal(r.At) {
+				return nil
+			}
+		}
+		current, err := b.db.GetMessage(ctx, target)
+		if err != nil {
+			return err
+		}
+		for _, existing := range current.Reactions {
+			if existing.From == cc.Self && existing.At.After(r.At) {
+				return nil
+			}
+		}
+	}
 	if rt.Remove {
 		cur, err := b.db.GetMessage(ctx, target)
 		if err != nil {
@@ -569,6 +587,11 @@ func (b *Backend) onReaction(ctx context.Context, cc convCtx, info events.Messag
 	m, err := b.db.SetReaction(ctx, target, r)
 	if err != nil {
 		return err
+	}
+	if cc.Sender == cc.Self {
+		if pending := b.reactions[target]; pending != nil {
+			pending.superseded = true
+		}
 	}
 	b.emit(core.MessageUpdated{Message: m})
 	return nil
